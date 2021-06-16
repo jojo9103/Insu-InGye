@@ -1,7 +1,7 @@
 # setwd('~/data1/2020Year/drug_repositioning/')
 # argv1<-c('./Cancer_Exp/', 'BRCA', '01,06', './BRCA_all.txt')
 # argv[1]= help, All, ACC,BRCA ..  argv1[3]= All, 01, 02
-# argv1<-c('./Cancer_Exp/', 'BRCA', '01,06', './BRCA_all.txt')
+# argv1<-c('./Cancer_Exp/', 'BRCA', '01,06', './BRCA_all.txt', 'TCGA_mapping.txt')
 library(stringr)
 argv1<-commandArgs(trailingOnly = T)
 dir_path=argv1[1] # TCGA dir 
@@ -9,6 +9,8 @@ dir_path=argv1[1] # TCGA dir
 #dir_path='./data1/2020Year/drug_repositioning/Cancer_Exp/'
 print(sprintf('%s-%s',argv1[2],argv1[3]))
 
+# TN_list = 샘플에서 Tumor인지, Normal, Metastasis인지 확인
+# https://gdc.cancer.gov/resources-tcga-users/tcga-code-tables/sample-type-codes 참
 TN_list<-list()
 for(i in 1:40){
   if(i %in%c(1,3,5,9)){
@@ -32,7 +34,7 @@ for(i in 1:40){
   }
 }
 
-
+# 설명충 어떻게 진행하는지 설명
 if(argv1[1]=='help'|argv1[1]=='h'){
   print('Rscript TCGA_Sample_filter.R TCGA_Sample_folder_path Cancer_Type Sample_Type Output')
   print('For Example:')
@@ -43,10 +45,10 @@ if(argv1[1]=='help'|argv1[1]=='h'){
   print('                                     | CHOL')
   print('                                     L COAD')
   print('I want BRCA Cancer type and Sample type 01,06 output file name is BRCA_all.txt.gz')
-  print('Rscript TCGA_Sample_filter.R ./Cancer_Exp/ BRCA 01,06 ./BRCA_all.txt # BRCA Sample, Sample type : 01,06 , output : BRCA_all.txt.gz')
+  print('Rscript TCGA_Sample_filter.R ./Cancer_Exp/ BRCA 01,06 ./BRCA_all.txt TCGA_mapping.txt # BRCA Sample, Sample type : 01,06 , output : BRCA_all.txt.gz')
   print('Another')
   print('I want All TCGA Cancer type and Sample type All(Tumor,Normal) output file name is all.txt.gz')
-  print('Rscript TCGA_Sample_filter.R ./Cancer_Exp/ All All ./all.txt # All TCGA, Sample type : all , output : all.txt.gz')
+  print('Rscript TCGA_Sample_filter.R ./Cancer_Exp/ All All ./all.txt TCGA_mapping.txt # All TCGA, Sample type : all , output : all.txt.gz')
   
 }else{
 
@@ -105,7 +107,7 @@ if(argv1[3]=='All'|argv1[3]=='ALL'|argv1[3]=='all'){
   all_data_test<-cbind.data.frame(all_data_test,i)
   }
 }
-
+# Gene = TCGA 에서 duplicated, withdrawn 
 Gene<-read.table(argv1[5],sep='\t',header=T,stringsAsFactors = F)
 Gene<-Gene[order(Gene$Entrez),]
 colnames(Gene)[2]='old_symbol'
@@ -134,10 +136,8 @@ for(g in dup_gene){
   mat1<-apply(mat1,1,sum)
   n_dup_all_data_test<-rbind.data.frame(n_dup_all_data_test,mat[c(1:length(mat1))[mat1==max(mat1)][1],])
 }
-
+		   
 file1<-trimws(argv1[4])
-# gz_f<-gzfile(paste0(file1,'.gz'),'w')
-#file2<-paste0(dir_path,argv1[2],'/',sprintf('%s_',ncol(n_dup_all_data_test)),file1)
 file2<-paste0(dir_path,argv1[2],'/',file1)
 write.table(n_dup_all_data_test,file2,sep='\t',quote = F,row.names = F)
 }
