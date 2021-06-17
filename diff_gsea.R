@@ -36,6 +36,7 @@ for(drug_f in filename1){
       rownames(drug_mat1)=drug_mat[,3]
       colnames(drug_mat1)=colnames(drug_mat)[4:ncol(drug_mat)]
       drug_f1_coln<-str_split_fixed(colnames(drug_mat1),'_',4)
+      # outlier 약물들 정리하기
       if(i_n2=='BRD-K68548958'){
 	      drug_f1_coln[drug_f1_coln[,2]=='6'&drug_f1_coln[,3]=='25',2]='0'
 	      drug_f1_coln[drug_f1_coln[,2]=='0'&drug_f1_coln[,3]=='25',3]='0'
@@ -49,7 +50,7 @@ for(drug_f in filename1){
 	      drug_f1_coln[drug_f1_coln[,2]=='0'&drug_f1_coln[,3]=='25',3]='0'	  
       }
 
-
+      # max dose, max time 확인
       dose_max<-max(as.numeric(drug_f1_coln[,3]))
       time_max<-max(as.numeric(drug_f1_coln[,2]))
       drug_mat2<-as.data.frame(drug_mat1[,drug_f1_coln[,2]==time_max&drug_f1_coln[,3]==dose_max])
@@ -65,6 +66,7 @@ for(drug_f in filename1){
                        min.sz=2,max.sz=Inf,parallel.sz=10,mx.diff=TRUE,
                        ssgsea.norm=TRUE,
                        verbose=F) # verbose =TRUE
+	# z-score로 변경 (ssgsea score를 TF마다 z-score로 변경)
         ssgsea_r_zscore<-t(apply(ssgsea_r,1,scale))
         colnames(ssgsea_r_zscore)=colnames(ssgsea_r)
         rownames(ssgsea_r_zscore)=rownames(ssgsea_r)
