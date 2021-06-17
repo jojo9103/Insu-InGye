@@ -28,7 +28,7 @@ for(i in argv1){
     ti_do<-cbind.data.frame(time1,dose1)
     dose_result<-data.frame(TF=rownames(ssgsea_1))
     time_result<-data.frame(TF=rownames(ssgsea_1))
-    # dose1
+    # dose 기준 (농도기준) 적용시간에 따른 Linear regression 진행
     for(dos in names(table(ti_do[,'dose1']))){
       dos_mat=ssgsea_1[,ti_do[,'dose1']==dos]
       dos_time=time1[dose1==dos]
@@ -46,7 +46,7 @@ for(i in argv1){
     }
     }
     rownames(time_result)=rownames(result)
-    # time1
+    # time 기준 (적용시간) 농도에 따른 Linear regression 진행
     for(ti in names(table(ti_do[,'time1']))){
       ti_mat=ssgsea_1[,ti_do[,'time1']==ti]
       ti_dose=dose1[time1==ti]
