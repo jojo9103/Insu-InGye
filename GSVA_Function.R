@@ -8,6 +8,8 @@ argv1<-commandArgs(trailingOnly = T)
 
 geneset<-read.xlsx(argv1[1],sheet=1) # sheet 2 == symbol gene
 
+# GSVA에 input에 맞게 list를 제작
+# TF마다 유전자 Set이 필요함.
 geneset_list<-list()
 for(l in 1:nrow(geneset)){
   l1=geneset[l,8:ncol(geneset)]
@@ -17,11 +19,13 @@ for(l in 1:nrow(geneset)){
 
 filename1=list.files(argv1[2])
 
+# DMSO = Control
 DMSO=read.table(gzfile(paste0(argv1[2],'DMSO_Selected_CL.txt.gz')),sep='\t',header=T,stringsAsFactors = F)
 rownames(DMSO)<-DMSO[,3]
 ford_mat=DMSO[,1:3]
 DMSO=DMSO[,4:ncol(DMSO)]
 
+# for loop를 하면서 약물마다 DMSO와 같이 합쳐서 GSVA를 돌림 그리고 t.test진행함 
 for(drug_f in filename1){
   i_n=strsplit(drug_f,'_')[[1]][1]
   if(i_n!='DMSO'){
@@ -31,6 +35,7 @@ for(drug_f in filename1){
       drug_f2=cbind.data.frame(DMSO,drug_f1[,4:ncol(drug_f1)])
       colnames(drug_f2)=c(colnames(DMSO),colnames(drug_f1)[4:ncol(drug_f1)])
       drug_f1<-as.matrix(drug_f2)
+      # DMSO + 특정 약물 데이터들을 GSVA로 돌림
       ssgsea_r<-gsva(drug_f1,geneset_list,method='ssgsea',kcdf="Gaussian",abs.ranking=FALSE,
                      min.sz=2,max.sz=Inf,parallel.sz=10,mx.diff=TRUE,
                      ssgsea.norm=TRUE,
@@ -41,6 +46,7 @@ for(drug_f in filename1){
       if(ncol(ssgsea_r_case)>4){
         pvalue<-c()
         tf_n<-c()
+        # 각 TF별로 t.test진행함.
         for(i in 1:nrow(ssgsea_r_ctl)){
           t_test<-t.test(ssgsea_r_ctl[i,],ssgsea_r_case[i,])
           pvalue<-c(pvalue,t_test$p.value)
