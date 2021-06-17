@@ -36,7 +36,7 @@ for(drug_f in filename1){
       rownames(drug_mat1)=drug_mat[,3]
       colnames(drug_mat1)=colnames(drug_mat)[4:ncol(drug_mat)]
       drug_f1_coln<-str_split_fixed(colnames(drug_mat1),'_',4)
-      # outlier 약물들 정리하기
+      # outlier 약물들 정리하기 ( 약물중에 최대 농도, 최대 시간 범위가 다른 경우가 있음 ) (예를들어 최대 농도이면서 최대 적용시간인 경우가 없는 경우)
       if(i_n2=='BRD-K68548958'){
 	      drug_f1_coln[drug_f1_coln[,2]=='6'&drug_f1_coln[,3]=='25',2]='0'
 	      drug_f1_coln[drug_f1_coln[,2]=='0'&drug_f1_coln[,3]=='25',3]='0'
@@ -53,6 +53,7 @@ for(drug_f in filename1){
       # max dose, max time 확인
       dose_max<-max(as.numeric(drug_f1_coln[,3]))
       time_max<-max(as.numeric(drug_f1_coln[,2]))
+      # 약물에서 최대약물 농도와 최대 약물적용시간인 경우만 가져옴
       drug_mat2<-as.data.frame(drug_mat1[,drug_f1_coln[,2]==time_max&drug_f1_coln[,3]==dose_max])
       rownames(drug_mat2)=drug_mat[,3]
       colnames(drug_mat2)=colnames(drug_mat1)[drug_f1_coln[,2]==time_max&drug_f1_coln[,3]==dose_max]
