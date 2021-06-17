@@ -28,13 +28,15 @@ for(i in argv1){
     ti_do<-cbind.data.frame(time1,dose1)
     dose_result<-data.frame(TF=rownames(ssgsea_1))
     time_result<-data.frame(TF=rownames(ssgsea_1))
-    # dose 기준 (농도기준) 적용시간에 따른 Linear regression 진행
+    # dose 기준 (농도기준) 적용시간에 따른 Linear regression 진행 (적용농도는 그대로, 그러나 시간이 변함)
     for(dos in names(table(ti_do[,'dose1']))){
       dos_mat=ssgsea_1[,ti_do[,'dose1']==dos]
       dos_time=time1[dose1==dos]
       if(dim(as.data.frame(dos_mat))[2]>1){
+        # linear regression 기울기 가져오기
       time_m<-apply(dos_mat,1,function(x)lm(x~dos_time)$coefficients['dos_time'])
       if (length(table(dos_time))!=1){
+        # linear regression pvalue 가져오기
         time_mp<-apply(dos_mat,1,function(x)summary(lm(x~dos_time))$coefficients[2,'Pr(>|t|)'])
       }else{
         time_mp<-rep(NA,nrow(dos_mat))
@@ -46,13 +48,15 @@ for(i in argv1){
     }
     }
     rownames(time_result)=rownames(result)
-    # time 기준 (적용시간) 농도에 따른 Linear regression 진행
+    # time 기준 (적용시간) 농도에 따른 Linear regression 진행 (적용시간은 그대로, 그러나 농도가 변함)
     for(ti in names(table(ti_do[,'time1']))){
       ti_mat=ssgsea_1[,ti_do[,'time1']==ti]
       ti_dose=dose1[time1==ti]
       if(dim(as.data.frame(ti_mat))[2]>1){
+        # linear regression 에서 기울기 
       dose_m<-apply(ti_mat,1,function(x)lm(x~ti_dose)$coefficients['ti_dose'])
       if(length(table(ti_dose))!=1){
+        # linear regression pvalue 가져오기
         dose_mp<-apply(ti_mat,1,function(x)summary(lm(x~ti_dose))$coefficients[2,'Pr(>|t|)'])
       }else{
         dose_mp<-rep(NA,nrow(ti_mat))
