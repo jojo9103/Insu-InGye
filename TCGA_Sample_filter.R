@@ -54,6 +54,24 @@ if(argv1[1]=='help'|argv1[1]=='h'){
 
 ######### data load
 # 전체인경우 All or all, ALL
+if(argv1[2]=='All'|argv1[2]=='ALL'|argv1[2]=='all'){
+  all_list<-list()
+  list_d<-list.files(dir_path)
+  for(i in 1:length(list_d)){
+    data_mat<-gzfile(paste0(dir_path,list_d[i],'/','HiSeqV2.gz'))
+    data_mat<-read.table(data_mat,sep='\t',header = T,stringsAsFactors = F,check.names = F)
+    rown<-data_mat[,1]
+    all_list[[i]]=data_mat[,2:ncol(data_mat)]
+  }
+  all_data<-cbind.data.frame(sample=rown,all_list)
+}
+
+if(argv1[2]!='help'&argv1[2]!='All'&argv1[2]!='ALL'){
+  if(argv1[2]%in%list.files(dir_path)){
+    data_mat<-gzfile(paste0(dir_path,argv1[2],'/','HiSeqV2.gz'))
+    data_mat<-read.table(data_mat,sep='\t',header = T,stringsAsFactors = F,check.names = F)
+  }else{
+
   print('error')
   }
   all_data=data_mat
