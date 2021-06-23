@@ -14,7 +14,7 @@ BRCA<-BRCA[BRCA$TF_name%in%LINCS$TF,]
 print(table(LINCS$TF==BRCA$TF_name))
 BRCA$diff=BRCA$Tumor_mean-BRCA$Normal_mean
 # fdr이용해서 p-value 보정해줌.
-BRCA$adj=p.adjust(BRCA$pvalue,method='fdr')
+# BRCA$adj=p.adjust(BRCA$pvalue,method='fdr') (ttest_Tumor_normal.R에서 fdr로 변경함)
 BRCA$logp=-log10(BRCA$adj)
 # Up regul in BRCA +, Up regul in Normal -
 BRCA[BRCA$diff<0,"logp"]=BRCA[BRCA$diff<0,"logp"]*-1
