@@ -1,34 +1,46 @@
 library(stringr)
 
+# 이 코드의 목적
+# L-score를 계산하기 위함
+# 그러기 위해서는 LINCS에서 각 TF별로 dose,time기준으로 같은 경향성을 갖고 있어야함.
+
+
 LINCS<-read.table('~/data1/2021Year/LINCS/20210415/Combine_anal_ssgsea_diff.txt',sep='\t',header=T,stringsAsFactors = F,check.names = F)
 LINCS_linear<-read.table('~/data1/2021Year/LINCS/20210415/lm_result_Summary.txt',sep='\t',header=T,stringsAsFactors = F)
 LINCS_linear1<-LINCS_linear[LINCS_linear$lm_p<0.05,]
+# TCGA 결과파일
 BRCA<-read.table('~/data1/2021Year/LINCS/20210415/BRCA_Summary.txt',sep='\t',header=T,stringsAsFactors = F)
 BRCA<-BRCA[BRCA$TF_name%in%LINCS$TF,]
 print(table(LINCS$TF==BRCA$TF_name))
 BRCA$diff=BRCA$Tumor_mean-BRCA$Normal_mean
+# fdr이용해서 p-value 보정해줌.
 BRCA$adj=p.adjust(BRCA$pvalue,method='fdr')
 BRCA$logp=-log10(BRCA$adj)
 # Up regul in BRCA +, Up regul in Normal -
 BRCA[BRCA$diff<0,"logp"]=BRCA[BRCA$diff<0,"logp"]*-1
 
 # combine LINCS data, TCGA BRCA data 
+
+#LINCS_data =  TCGA, LINCS데이터를 합친 파일 (Scatter plot만들때 필요함)
 LINCS_data<-NULL
 for(i in 2:ncol(LINCS)){
   i1=cbind.data.frame(TF=BRCA$TF_name,BRCA_TF=BRCA$logp,LINCS_TF=LINCS[,i],Drug_name=colnames(LINCS)[i])
   LINCS_data<-rbind.data.frame(LINCS_data,i1)
 }
 # write.table(LINCS_data,'~/data1/2021Year/LINCS/20210415/TCGA_LINCS_TF_score.txt',sep='\t',row.names = F,quote = F)
-# LINCS filter
+
+
+## LINCS filter ##
 # LINCS_data1<-LINCS_data
 LINCS_linear_1<-LINCS_linear
 LINCS_linear_1$pos=''
+# slope이 양수 음수 혹은  0인 경우를 확인함.
 LINCS_linear_1$pos[LINCS_linear_1$lm>0]='pos'
 LINCS_linear_1$pos[LINCS_linear_1$lm<0]='neg'
 LINCS_linear_1$pos[LINCS_linear_1$lm==0]='zero'
 
 drug_name<-names(table(LINCS_linear_1$drug_name))
-
+# 약물마다 dose기준, time기준 linear regression slope에 대해 같은 경향성을 확인함.
 for(dn in drug_name){
   # print(dn)
   drug_data=LINCS_linear_1[LINCS_linear_1$drug_name==dn,]
