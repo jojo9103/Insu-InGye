@@ -1,10 +1,11 @@
+# BRCA = 각 TF에 대해서 Tumor mean, Normal mean, t-test p-value를 갖는 파일 
 BRCA<-read.table('~/data1/2021Year/LINCS/20210415/BRCA_Summary.txt',sep='\t',header=T,stringsAsFactors = F)
 LINCS<-read.table('~/data1/2021Year/LINCS/20210415/Combine_anal_ssgsea_diff.txt',sep='\t',header=T,stringsAsFactors = F,check.names = F)
 BRCA<-BRCA[BRCA$TF_name%in%LINCS$TF,]
 print(table(LINCS$TF==BRCA$TF_name))
 BRCA$diff=BRCA$Tumor_mean-BRCA$Normal_mean
 BRCA$adj=p.adjust(BRCA$pvalue,method='fdr')
-
+# TCGA ssgsea score
 BRCA_raw<-read.table('~/data1/2021Year/LINCS/20210415/plot_summary/ssgsea_symbol.txt',sep='\t',header=T,stringsAsFactors = F,check.names = F)
 
 library(pheatmap)
